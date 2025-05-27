@@ -3,7 +3,6 @@ services:
     name: watemelone-game-backend
     env: node
     rootDirectory: backend
-    branch: gh-pages
     buildCommand: npm install && npx prisma generate
     startCommand: node src/app.js
     envVars:
