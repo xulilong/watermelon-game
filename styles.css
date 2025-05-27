@@ -27,22 +27,41 @@ html, body {
     height: 100%;
     position: relative;
     background-color: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     overflow: hidden;
 }
 
 /* Canvas样式 */
 #gameCanvas {
     display: block;
-    position: absolute;
     background-color: #000;
     touch-action: none;
 }
 
+/* PC端样式 */
+@media (min-width: 769px) {
+    #gameCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
+
 /* 移动端优化 */
 @media (max-width: 768px) {
+    .game-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #gameCanvas {
+        position: absolute;
+        max-width: 100%;
+        max-height: 90vh;
+    }
+
     .game-status {
         font-size: 14px;
         padding: 5px;

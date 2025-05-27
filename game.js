@@ -203,20 +203,37 @@ class Game {
         const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
         
-        // 计算游戏画布的理想尺寸（保持16:9的宽高比）
-        const gameAspectRatio = 16 / 9;
+        // 检测是否为移动设备
+        const isMobile = window.matchMedia("(max-width: 768px)").matches;
+        
         let gameWidth, gameHeight;
         
-        const containerAspectRatio = containerWidth / containerHeight;
-        
-        if (containerAspectRatio > gameAspectRatio) {
-            // 容器更宽，以高度为基准
-            gameHeight = containerHeight;
-            gameWidth = containerHeight * gameAspectRatio;
+        if (isMobile) {
+            // 移动端使用16:9的宽高比
+            const gameAspectRatio = 16 / 9;
+            const containerAspectRatio = containerWidth / containerHeight;
+            
+            if (containerAspectRatio > gameAspectRatio) {
+                // 容器更宽，以高度为基准
+                gameHeight = containerHeight;
+                gameWidth = containerHeight * gameAspectRatio;
+            } else {
+                // 容器更高，以宽度为基准
+                gameWidth = containerWidth;
+                gameHeight = containerWidth / gameAspectRatio;
+            }
+            
+            // 如果游戏区域太大，适当缩小
+            const maxGameHeight = containerHeight * 0.9;
+            if (gameHeight > maxGameHeight) {
+                const scale = maxGameHeight / gameHeight;
+                gameHeight = maxGameHeight;
+                gameWidth *= scale;
+            }
         } else {
-            // 容器更高，以宽度为基准
+            // PC端使用全屏
             gameWidth = containerWidth;
-            gameHeight = containerWidth / gameAspectRatio;
+            gameHeight = containerHeight;
         }
         
         // 设置canvas的实际尺寸（考虑设备像素比）
@@ -241,11 +258,17 @@ class Game {
         
         // 重新定位嘴巴
         if (this.mouth) {
-            this.mouth.x = Math.min(Math.max(this.mouth.x, this.mouth.size), gameWidth - this.mouth.size);
-            this.mouth.y = Math.min(Math.max(this.mouth.y, this.mouth.size), gameHeight - this.mouth.size);
+            // 在移动端，将嘴巴放在更容易操作的位置
+            if (isMobile) {
+                this.mouth.x = gameWidth / 2;
+                this.mouth.y = gameHeight * 0.7;
+            } else {
+                this.mouth.x = Math.min(Math.max(this.mouth.x, this.mouth.size), gameWidth - this.mouth.size);
+                this.mouth.y = Math.min(Math.max(this.mouth.y, this.mouth.size), gameHeight - this.mouth.size);
+            }
         }
         
-        console.log(`Canvas尺寸设置完成: ${gameWidth} x ${gameHeight}, DPR: ${dpr}`);
+        console.log(`Canvas尺寸设置完成: ${gameWidth} x ${gameHeight}, DPR: ${dpr}, Mobile: ${isMobile}`);
     }
 
     setupEventListeners() {
