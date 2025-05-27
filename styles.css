@@ -87,6 +87,8 @@ html, body {
         width: 40px;
         height: 40px;
         font-size: 16px;
+        top: 80px;
+        right: 20px;
     }
 
     .game-btn {
@@ -102,6 +104,12 @@ html, body {
     .instruction-popup {
         max-width: 90%;
         font-size: 14px;
+        top: 130px;
+    }
+
+    .instruction-btn {
+        top: 20px;
+        right: 20px;
     }
 }
 
@@ -142,6 +150,8 @@ html, body {
 
 /* 游戏说明按钮 */
 .instruction-btn {
+    position: absolute;
+    top: 20px;
     right: 90px;
 }
 
