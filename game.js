@@ -604,36 +604,75 @@ class Game {
             selectedFruit = 'WATERMELON';
         }
 
-        // 创建水果对象
+        // 计算安全的生成范围
+        const fruitSize = CONFIG.FRUIT_SIZE;
+        const padding = fruitSize * 2; // 添加一些边距，防止水果太靠边
+        const minX = padding;
+        const maxX = this.gameWidth - padding;
+
+        // 创建水果对象，确保在可视区域内生成
         const fruit = {
-            x: Math.random() * (this.canvas.width - CONFIG.FRUIT_SIZE * 2) + CONFIG.FRUIT_SIZE,
-            y: -CONFIG.FRUIT_SIZE,
+            x: Math.random() * (maxX - minX) + minX,
+            y: -fruitSize,
             type: selectedFruit,
-            ...FRUIT_TYPES[selectedFruit]
+            ...FRUIT_TYPES[selectedFruit],
+            speedY: 0, // 初始下落速度
+            speedX: 0, // 可能的横向移动速度
+            rotation: Math.random() * Math.PI * 2 // 随机初始旋转角度
         };
 
         // 添加到水果数组
         this.fruits.push(fruit);
         
         // 调试日志
-        console.log(`Spawned fruit: ${selectedFruit}`);
+        console.log(`Spawned ${selectedFruit} at x:${fruit.x.toFixed(2)}, gameWidth:${this.gameWidth}`);
     }
 
     spawnBomb() {
+        // 计算安全的生成范围
+        const bombSize = CONFIG.FRUIT_SIZE;
+        const padding = bombSize * 2;
+        const minX = padding;
+        const maxX = this.gameWidth - padding;
+
         const bomb = {
-            x: Math.random() * (this.canvas.width - CONFIG.FRUIT_SIZE * 2) + CONFIG.FRUIT_SIZE,
-            y: -CONFIG.FRUIT_SIZE,
+            x: Math.random() * (maxX - minX) + minX,
+            y: -bombSize,
             type: 'BOMB',
-            ...FRUIT_TYPES.BOMB
+            ...FRUIT_TYPES.BOMB,
+            speedY: 0,
+            speedX: 0,
+            rotation: Math.random() * Math.PI * 2
         };
         this.fruits.push(bomb);
     }
 
     updateFruits(deltaTime) {
-        const speed = 2 + this.level * 0.5;
+        const baseSpeed = 2 + this.level * 0.5;
+        const gravity = 0.2; // 添加重力效果
+        
         this.fruits = this.fruits.filter(fruit => {
-            fruit.y += speed;
-            return fruit.y < this.canvas.height + CONFIG.FRUIT_SIZE;
+            // 更新速度
+            fruit.speedY += gravity;
+            
+            // 更新位置
+            fruit.y += fruit.speedY + baseSpeed;
+            fruit.x += fruit.speedX;
+            
+            // 更新旋转
+            fruit.rotation += 0.02;
+            
+            // 边界检查
+            if (fruit.x < CONFIG.FRUIT_SIZE) {
+                fruit.x = CONFIG.FRUIT_SIZE;
+                fruit.speedX *= -0.5; // 碰撞后反弹，但减少速度
+            } else if (fruit.x > this.gameWidth - CONFIG.FRUIT_SIZE) {
+                fruit.x = this.gameWidth - CONFIG.FRUIT_SIZE;
+                fruit.speedX *= -0.5;
+            }
+            
+            // 只有当水果完全离开屏幕底部时才移除
+            return fruit.y < this.gameHeight + CONFIG.FRUIT_SIZE * 2;
         });
     }
 
@@ -1113,7 +1152,7 @@ class Game {
         if (image) {
             this.ctx.save();
             this.ctx.translate(fruit.x, fruit.y);
-            this.ctx.rotate(Date.now() / 1000); // 旋转动画
+            this.ctx.rotate(fruit.rotation || 0);
             this.ctx.drawImage(
                 image,
                 -CONFIG.FRUIT_SIZE,
