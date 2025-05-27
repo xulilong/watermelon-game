@@ -209,26 +209,30 @@ class Game {
         let gameWidth, gameHeight;
         
         if (isMobile) {
-            // 移动端使用16:9的宽高比
-            const gameAspectRatio = 16 / 9;
-            const containerAspectRatio = containerWidth / containerHeight;
-            
-            if (containerAspectRatio > gameAspectRatio) {
-                // 容器更宽，以高度为基准
+            // 移动端使用固定宽高比
+            const isLandscape = containerWidth > containerHeight;
+            if (isLandscape) {
+                // 横屏：使用16:9
+                const gameAspectRatio = 16 / 9;
                 gameHeight = containerHeight;
-                gameWidth = containerHeight * gameAspectRatio;
+                gameWidth = gameHeight * gameAspectRatio;
+                
+                // 如果计算出的宽度超过容器宽度，则反过来计算
+                if (gameWidth > containerWidth) {
+                    gameWidth = containerWidth;
+                    gameHeight = gameWidth / gameAspectRatio;
+                }
             } else {
-                // 容器更高，以宽度为基准
+                // 竖屏：使用9:16
+                const gameAspectRatio = 9 / 16;
                 gameWidth = containerWidth;
-                gameHeight = containerWidth / gameAspectRatio;
-            }
-            
-            // 如果游戏区域太大，适当缩小
-            const maxGameHeight = containerHeight * 0.9;
-            if (gameHeight > maxGameHeight) {
-                const scale = maxGameHeight / gameHeight;
-                gameHeight = maxGameHeight;
-                gameWidth *= scale;
+                gameHeight = gameWidth / gameAspectRatio;
+                
+                // 如果计算出的高度超过容器高度，则反过来计算
+                if (gameHeight > containerHeight) {
+                    gameHeight = containerHeight;
+                    gameWidth = gameHeight * gameAspectRatio;
+                }
             }
         } else {
             // PC端使用全屏
@@ -258,17 +262,24 @@ class Game {
         
         // 重新定位嘴巴
         if (this.mouth) {
-            // 在移动端，将嘴巴放在更容易操作的位置
+            const isLandscape = containerWidth > containerHeight;
             if (isMobile) {
-                this.mouth.x = gameWidth / 2;
-                this.mouth.y = gameHeight * 0.7;
-            } else {
-                this.mouth.x = Math.min(Math.max(this.mouth.x, this.mouth.size), gameWidth - this.mouth.size);
-                this.mouth.y = Math.min(Math.max(this.mouth.y, this.mouth.size), gameHeight - this.mouth.size);
+                if (isLandscape) {
+                    // 横屏：放在底部中间
+                    this.mouth.x = gameWidth / 2;
+                    this.mouth.y = gameHeight * 0.8;
+                } else {
+                    // 竖屏：放在底部中间偏上
+                    this.mouth.x = gameWidth / 2;
+                    this.mouth.y = gameHeight * 0.7;
+                }
             }
+            // 确保嘴巴在游戏区域内
+            this.mouth.x = Math.min(Math.max(this.mouth.x, this.mouth.size), gameWidth - this.mouth.size);
+            this.mouth.y = Math.min(Math.max(this.mouth.y, this.mouth.size), gameHeight - this.mouth.size);
         }
         
-        console.log(`Canvas尺寸设置完成: ${gameWidth} x ${gameHeight}, DPR: ${dpr}, Mobile: ${isMobile}`);
+        console.log(`Canvas尺寸设置完成: ${gameWidth} x ${gameHeight}, DPR: ${dpr}, Mobile: ${isMobile}, Landscape: ${containerWidth > containerHeight}`);
     }
 
     setupEventListeners() {
@@ -296,7 +307,7 @@ class Game {
             const x = (touch.clientX - rect.left) * scaleX;
             const y = (touch.clientY - rect.top) * scaleY;
             
-            // 移动到触摸位置
+            // 移动到触摸位置，但保持在游戏区域内
             this.mouth.x = Math.min(Math.max(x, this.mouth.size), this.gameWidth - this.mouth.size);
             this.mouth.y = Math.min(Math.max(y, this.mouth.size), this.gameHeight - this.mouth.size);
         });
@@ -318,7 +329,9 @@ class Game {
                 // 计算移动角度
                 const dx = touch.clientX - this.touchStartX;
                 const dy = touch.clientY - this.touchStartY;
-                this.mouth.angle = Math.atan2(dy, dx);
+                if (dx !== 0 || dy !== 0) {
+                    this.mouth.angle = Math.atan2(dy, dx);
+                }
             }
         });
 
