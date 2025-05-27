@@ -55,7 +55,7 @@ class LeaderboardManager {
         // 根据环境选择API URL
         this.apiBaseUrl = window.location.hostname === 'localhost' 
             ? 'http://localhost:3000/api'
-            : 'https://watemelone-game-backend.onrender.com/api'; // 替换为你的 Render.com 后端URL
+            : 'https://watermelon-game-service.onrender.com/api'; // 更新为新的后端 URL
     }
 
     async submitScore(nickname, score, level) {
