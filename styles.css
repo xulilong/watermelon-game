@@ -5,32 +5,50 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
     overflow: hidden;
     position: fixed;
+    background-color: #1a1a1a;
     touch-action: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
-    background-color: #1a1a1a;
+    /* 适配刘海屏 */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* 游戏容器样式 */
 .game-container {
     width: 100%;
     height: 100%;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
     background-color: #000;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
+    /* 确保在移动设备上全屏显示 */
+    min-height: -webkit-fill-available;
+    min-height: 100vh;
+    /* 适配刘海屏 */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* Canvas基础样式 */
@@ -39,42 +57,43 @@ html, body {
     position: absolute;
     background-color: #000;
     touch-action: none;
-    image-rendering: -webkit-optimize-contrast; /* 提高图像清晰度 */
+    image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
     image-rendering: pixelated;
-}
-
-/* PC端样式 */
-@media (min-width: 769px) {
-    #gameCanvas {
-        width: 100% !important;
-        height: 100% !important;
-        top: 0;
-        left: 0;
-    }
+    /* 确保canvas始终保持比例 */
+    object-fit: contain;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100vw;
+    max-height: 100vh;
+    margin: auto;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* 移动端样式 */
 @media (max-width: 768px) {
-    #gameCanvas {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: contain;
-    }
-
     /* 横屏样式 */
     @media (orientation: landscape) {
-        #gameCanvas {
-            width: 100vw !important;
-            height: 100vh !important;
+        .game-container {
+            width: 100vw;
+            height: 100vh;
         }
     }
 
     /* 竖屏样式 */
     @media (orientation: portrait) {
-        #gameCanvas {
-            width: 100vw !important;
-            height: 100vh !important;
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+        }
+    }
+
+    /* 微信浏览器特殊处理 */
+    @supports (-webkit-overflow-scrolling: touch) {
+        .game-container {
+            height: -webkit-fill-available;
         }
     }
 
@@ -87,6 +106,8 @@ html, body {
         width: 40px;
         height: 40px;
         font-size: 16px;
+        /* 确保按钮不会被刘海遮挡 */
+        margin: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
     .game-btn {
@@ -97,11 +118,15 @@ html, body {
     .overlay-content {
         padding: 15px;
         max-width: 90%;
+        /* 确保弹窗内容不会被刘海遮挡 */
+        margin: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
     .instruction-popup {
         max-width: 90%;
         font-size: 14px;
+        /* 确保说明弹窗不会被刘海遮挡 */
+        margin: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 }
 
