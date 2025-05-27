@@ -184,6 +184,10 @@ class Game {
 
     setupCanvas() {
         console.log('设置Canvas尺寸...');
+        
+        // 获取设备像素比
+        const dpr = window.devicePixelRatio || 1;
+        
         // 设置canvas的实际尺寸
         const container = document.querySelector('.game-container');
         if (!container) {
@@ -192,16 +196,34 @@ class Game {
         }
         
         // 设置canvas的显示尺寸
-        this.canvas.width = container.clientWidth;
-        this.canvas.height = container.clientHeight;
+        const width = container.clientWidth;
+        const height = container.clientHeight;
         
-        console.log(`Canvas尺寸设置完成: ${this.canvas.width} x ${this.canvas.height}`);
+        // 设置canvas的实际尺寸（考虑设备像素比）
+        this.canvas.width = width * dpr;
+        this.canvas.height = height * dpr;
+        
+        // 设置canvas的CSS尺寸
+        this.canvas.style.width = `${width}px`;
+        this.canvas.style.height = `${height}px`;
+        
+        // 调整绘图上下文的缩放
+        this.ctx.scale(dpr, dpr);
+        
+        console.log(`Canvas尺寸设置完成: ${width} x ${height}, DPR: ${dpr}`);
         
         // 添加窗口调整大小的事件监听
         window.addEventListener('resize', () => {
-            this.canvas.width = container.clientWidth;
-            this.canvas.height = container.clientHeight;
-            console.log(`Canvas尺寸已调整: ${this.canvas.width} x ${this.canvas.height}`);
+            const newWidth = container.clientWidth;
+            const newHeight = container.clientHeight;
+            
+            this.canvas.width = newWidth * dpr;
+            this.canvas.height = newHeight * dpr;
+            this.canvas.style.width = `${newWidth}px`;
+            this.canvas.style.height = `${newHeight}px`;
+            this.ctx.scale(dpr, dpr);
+            
+            console.log(`Canvas尺寸已调整: ${newWidth} x ${newHeight}`);
         });
     }
 
