@@ -1660,6 +1660,8 @@ function showGameOver(score, level) {
     gameOverDiv.style.borderRadius = '10px';
     gameOverDiv.style.color = 'white';
     gameOverDiv.style.textAlign = 'center';
+    gameOverDiv.style.zIndex = '1000'; // 确保显示在最上层
+    gameOverDiv.style.minWidth = '300px'; // 设置最小宽度
     
     // 添加分数显示
     gameOverDiv.innerHTML = `
@@ -1668,9 +1670,10 @@ function showGameOver(score, level) {
         <p>等级: ${level}</p>
         <input type="text" id="nickname" placeholder="请输入昵称" style="margin: 10px; padding: 5px;">
         <button id="submitScore" style="margin: 10px; padding: 5px 10px;">提交分数</button>
+        <div id="submitStatus" style="color: yellow; margin: 5px; display: none;"></div>
         <div id="leaderboard" style="margin-top: 20px;">
             <h3>排行榜</h3>
-            <div id="leaderboardList"></div>
+            <div id="leaderboardList" style="max-height: 300px; overflow-y: auto;"></div>
         </div>
         <button id="restartGame" style="margin: 10px; padding: 5px 10px;">重新开始</button>
     `;
@@ -1679,34 +1682,78 @@ function showGameOver(score, level) {
     
     // 提交分数
     document.getElementById('submitScore').addEventListener('click', async () => {
-        const nickname = document.getElementById('nickname').value;
+        const submitButton = document.getElementById('submitScore');
+        const statusDiv = document.getElementById('submitStatus');
+        const nickname = document.getElementById('nickname').value.trim();
+        
         if (!nickname) {
-            alert('请输入昵称');
+            statusDiv.textContent = '请输入昵称';
+            statusDiv.style.display = 'block';
             return;
         }
         
-        await leaderboard.submitScore(nickname, score, level);
-        updateLeaderboard();
+        try {
+            // 禁用提交按钮，显示加载状态
+            submitButton.disabled = true;
+            statusDiv.textContent = '提交中...';
+            statusDiv.style.display = 'block';
+            
+            console.log('提交分数:', { nickname, score, level });
+            const result = await leaderboard.submitScore(nickname, score, level);
+            console.log('提交结果:', result);
+            
+            if (result && result.success) {
+                statusDiv.style.color = '#4CAF50';
+                statusDiv.textContent = '提交成功！';
+                // 提交成功后更新排行榜
+                updateLeaderboard();
+            } else {
+                throw new Error('提交失败');
+            }
+        } catch (error) {
+            console.error('提交分数失败:', error);
+            statusDiv.style.color = '#ff6b6b';
+            statusDiv.textContent = '提交失败，请重试';
+        } finally {
+            // 重新启用提交按钮
+            submitButton.disabled = false;
+        }
     });
     
     // 更新排行榜显示
     async function updateLeaderboard() {
-        const leaderboardData = await leaderboard.getLeaderboard();
-        if (!leaderboardData) return;
-        
         const leaderboardList = document.getElementById('leaderboardList');
-        leaderboardList.innerHTML = leaderboardData.data.map((item, index) => `
-            <div style="margin: 5px; padding: 5px; background: rgba(255,255,255,0.1);">
-                ${index + 1}. ${item.nickname} - ${item.score}分 (Level ${item.level})
-            </div>
-        `).join('');
+        const loadingText = document.createElement('div');
+        loadingText.textContent = '加载排行榜中...';
+        leaderboardList.appendChild(loadingText);
+        
+        try {
+            console.log('获取排行榜数据...');
+            const leaderboardData = await leaderboard.getLeaderboard();
+            console.log('排行榜数据:', leaderboardData);
+            
+            if (!leaderboardData || !Array.isArray(leaderboardData)) {
+                throw new Error('无效的排行榜数据');
+            }
+            
+            leaderboardList.innerHTML = leaderboardData.map((item, index) => `
+                <div style="margin: 5px; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                    <span style="color: gold;">${index + 1}.</span> 
+                    <span style="color: #4facfe;">${item.nickname}</span> - 
+                    <span style="color: #ffd700;">${item.score}分</span>
+                    <span style="color: #ff6b6b;">(Level ${item.level})</span>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('获取排行榜失败:', error);
+            leaderboardList.innerHTML = '<div style="color: #ff6b6b;">获取排行榜失败，请刷新页面重试</div>';
+        }
     }
     
     // 重新开始游戏
     document.getElementById('restartGame').addEventListener('click', () => {
         document.body.removeChild(gameOverDiv);
-        // 调用游戏的重新开始函数
-        restartGame();
+        location.reload(); // 直接刷新页面重新开始
     });
     
     // 初始显示排行榜
