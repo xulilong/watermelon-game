@@ -1,0 +1,85 @@
+<!-- 游戏容器 -->
+<view class="game-container">
+  <!-- 游戏画布 -->
+  <canvas type="2d" id="gameCanvas" class="game-canvas"></canvas>
+
+  <!-- 游戏状态 -->
+  <view class="game-status">
+    <view class="status-item">关卡: <text>{{level}}</text></view>
+    <view class="status-item">分数: <text>{{score}}</text></view>
+    <view class="status-item">时间: <text>{{timeLeft}}</text>s</view>
+  </view>
+
+  <!-- 虚拟摇杆 -->
+  <view id="joystick-area" class="joystick-area" bindtouchstart="onJoystickStart" bindtouchmove="onJoystickMove" bindtouchend="onJoystickEnd">
+    <view class="joystick-base">
+      <view class="joystick-stick" style="transform: translate({{joystickX}}px, {{joystickY}}px)"></view>
+    </view>
+  </view>
+
+  <!-- 控制按钮 -->
+  <view class="control-buttons">
+    <view class="control-btn pause-btn" bindtap="togglePause">
+      <text class="pause-icon">❚❚</text>
+    </view>
+    <view class="control-btn instruction-btn" bindtap="toggleInstruction">
+      <text class="instruction-icon">❔</text>
+    </view>
+  </view>
+
+  <!-- 游戏说明弹出层 -->
+  <view class="instruction-popup {{isInstructionVisible ? '' : 'hidden'}}">
+    <view class="instruction-content">
+      <view class="instruction-title">游戏规则</view>
+      <text>控制角色吃掉掉落的水果，注意避开炸弹！</text>
+      <view class="fruit-scores">
+        <text>🍉 西瓜: 8分</text>
+        <text>🥭 芒果: 7分</text>
+        <text>🍌 香蕉: 6分</text>
+        <text>🍎 苹果: 5分</text>
+        <text>🍇 葡萄: 4分</text>
+        <text>🥝 猕猴桃: 3分</text>
+        <text>🍊 橙子: 3分</text>
+        <text>🍋 柠檬: -5分</text>
+        <text>💣 炸弹: 游戏结束</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 加载界面 -->
+<view class="loading-screen {{isLoading ? '' : 'hidden'}}">
+  <view class="loading-content">
+    <text>游戏加载中...</text>
+    <view class="progress-bar">
+      <view class="progress" style="width: {{loadingProgress}}%"></view>
+    </view>
+    <text>{{loadingProgress}}%</text>
+  </view>
+</view>
+
+<!-- 游戏结束界面 -->
+<view class="game-over {{isGameOver ? '' : 'hidden'}}">
+  <view class="overlay-content">
+    <text class="title">游戏结束</text>
+    <view class="game-stats">
+      <text>最终得分: {{finalScore}}</text>
+      <text>达到关卡: {{finalLevel}}</text>
+    </view>
+    <button class="game-btn" bindtap="restartGame">重新开始</button>
+    <button class="game-btn" bindtap="shareScore" open-type="share">分享战绩</button>
+  </view>
+</view>
+
+<!-- 关卡完成界面 -->
+<view class="level-complete {{isLevelComplete ? '' : 'hidden'}}">
+  <view class="overlay-content">
+    <text class="title">恭喜通关！</text>
+    <view class="level-stats">
+      <text>得分: {{levelScore}}</text>
+      <text>用时: {{levelTime}}秒</text>
+      <text class="bonus">奖励分数: +{{timeBonus}}</text>
+    </view>
+    <button class="game-btn" bindtap="nextLevel">下一关</button>
+  </view>
+</view> 

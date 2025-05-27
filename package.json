@@ -1,0 +1,22 @@
+{
+  "name": "watermelon-game",
+  "version": "1.0.0",
+  "description": "A fun HTML5 game where you eat falling fruits",
+  "main": "game.js",
+  "scripts": {
+    "start": "http-server -c-1",
+    "dev": "http-server -c-1",
+    "build": "echo 'No build step required'"
+  },
+  "keywords": [
+    "game",
+    "html5",
+    "canvas",
+    "watermelon"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+}

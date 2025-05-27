@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>吃个大西瓜 - 横屏趣味版</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 加载界面 -->
+    <div id="loadingScreen" class="overlay">
+        <div class="loading-content">
+            <h2>游戏加载中...</h2>
+            <div class="progress-bar">
+                <div id="loadingProgress" class="progress"></div>
+            </div>
+            <p id="loadingText">0%</p>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <!-- 游戏画布 -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- 游戏状态 -->
+        <div class="game-status">
+            <div class="status-item">关卡: <span id="level">1</span></div>
+            <div class="status-item">分数: <span id="score">0</span></div>
+            <div class="status-item">时间: <span id="timer">60</span>s</div>
+        </div>
+
+        <!-- 虚拟摇杆 -->
+        <div id="joystick-area">
+            <div id="joystick-base">
+                <div id="joystick-stick"></div>
+            </div>
+        </div>
+
+        <!-- 暂停按钮 -->
+        <button id="pauseBtn" class="control-btn">
+            <span class="pause-icon">❚❚</span>
+        </button>
+
+        <!-- 游戏说明按钮 -->
+        <button id="instructionBtn" class="control-btn instruction-btn">
+            <span class="instruction-icon">❔</span>
+        </button>
+
+        <!-- 游戏说明弹出层 -->
+        <div id="instructionPopup" class="instruction-popup hidden">
+            <div class="instruction-content">
+                <h3>游戏规则</h3>
+                <p>控制角色吃掉掉落的水果，注意避开炸弹！</p>
+                <div class="fruit-scores">
+                    <p>🍉 西瓜: 8分</p>
+                    <p>🥭 芒果: 7分</p>
+                    <p>🍌 香蕉: 6分</p>
+                    <p>🍎 苹果: 5分</p>
+                    <p>🍇 葡萄: 4分</p>
+                    <p>🥝 猕猴桃: 3分</p>
+                    <p>🍊 橙子: 3分</p>
+                    <p>🍋 柠檬: -5分</p>
+                    <p>💣 炸弹: 游戏结束</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 关卡开始界面 -->
+    <div id="levelStart" class="overlay hidden">
+        <div class="overlay-content">
+            <h2>第 <span id="levelNumber">1</span> 关</h2>
+            <div class="level-info">
+                <p>目标分数: <span id="targetScore">100</span></p>
+                <p>时间限制: <span id="timeLimit">60</span>秒</p>
+            </div>
+            <div class="level-tips">
+                <h3>关卡提示</h3>
+                <ul id="levelTips"></ul>
+            </div>
+            <button id="startBtn" class="game-btn">开始游戏</button>
+        </div>
+    </div>
+
+    <!-- 游戏结束界面 -->
+    <div id="gameOver" class="overlay hidden">
+        <div class="overlay-content">
+            <h2>游戏结束</h2>
+            <div class="game-stats">
+                <p>最终得分: <span id="finalScore">0</span></p>
+                <p>达到关卡: <span id="finalLevel">1</span></p>
+            </div>
+            <button id="restartBtn" class="game-btn">重新开始</button>
+            <button id="shareBtn" class="game-btn">分享战绩</button>
+        </div>
+    </div>
+
+    <!-- 关卡完成界面 -->
+    <div id="levelComplete" class="overlay hidden">
+        <div class="overlay-content">
+            <h2>恭喜通关！</h2>
+            <div class="level-stats">
+                <p>得分: <span id="levelScore">0</span></p>
+                <p>用时: <span id="levelTime">0</span>秒</p>
+                <p class="bonus">奖励分数: +<span id="timeBonus">0</span></p>
+            </div>
+            <button id="nextLevelBtn" class="game-btn">下一关</button>
+        </div>
+    </div>
+
+    <!-- 暂停菜单 -->
+    <div id="pauseMenu" class="overlay hidden">
+        <div class="overlay-content">
+            <h2>游戏暂停</h2>
+            <button id="resumeBtn" class="game-btn">继续游戏</button>
+            <button id="restartLevelBtn" class="game-btn">重新开始本关</button>
+            <button id="quitBtn" class="game-btn">退出游戏</button>
+        </div>
+    </div>
+
+    <!-- 游戏脚本 -->
+    <script src="js/AssetLoader.js"></script>
+    <script src="game.js"></script>
+</body>
+</html> 
