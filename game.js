@@ -6,8 +6,8 @@ const CONFIG = {
     MOUTH_MAX_SIZE: 80,
     MOUTH_SPEED: 5,
     FRUIT_SIZE: 30,
-    FRUIT_SPAWN_INTERVAL: 1500,
-    BOMB_SPAWN_INTERVAL: 4000,
+    FRUIT_SPAWN_INTERVAL: 2000,
+    BOMB_SPAWN_INTERVAL: 5000,
     LEVEL_TIME: 45,
     SCORE_PER_FRUIT: 5,
     WATERMELON_GROWTH: 8,
@@ -648,27 +648,27 @@ class Game {
     }
 
     updateFruits(deltaTime) {
-        const baseSpeed = 2 + this.level * 0.5;
-        const gravity = 0.2; // 添加重力效果
+        const baseSpeed = (2 + this.level * 0.3) * (deltaTime / 16); // 基础速度，根据帧率调整
+        const gravity = 0.05 * (deltaTime / 16); // 减小重力效果，并根据帧率调整
         
         this.fruits = this.fruits.filter(fruit => {
-            // 更新速度
-            fruit.speedY += gravity;
+            // 更新速度，限制最大下落速度
+            fruit.speedY = Math.min(fruit.speedY + gravity, 5);
             
             // 更新位置
-            fruit.y += fruit.speedY + baseSpeed;
-            fruit.x += fruit.speedX;
+            fruit.y += (fruit.speedY + baseSpeed);
+            fruit.x += fruit.speedX * (deltaTime / 16);
             
-            // 更新旋转
-            fruit.rotation += 0.02;
+            // 更新旋转，使旋转速度更平滑
+            fruit.rotation += 0.01 * (deltaTime / 16);
             
             // 边界检查
             if (fruit.x < CONFIG.FRUIT_SIZE) {
                 fruit.x = CONFIG.FRUIT_SIZE;
-                fruit.speedX *= -0.5; // 碰撞后反弹，但减少速度
+                fruit.speedX *= -0.3; // 减小反弹力度
             } else if (fruit.x > this.gameWidth - CONFIG.FRUIT_SIZE) {
                 fruit.x = this.gameWidth - CONFIG.FRUIT_SIZE;
-                fruit.speedX *= -0.5;
+                fruit.speedX *= -0.3;
             }
             
             // 只有当水果完全离开屏幕底部时才移除
