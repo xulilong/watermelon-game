@@ -49,6 +49,42 @@ const FRUIT_TYPES = {
     BOMB: { color: '#2f3542', score: 0, effect: 'explode' }
 };
 
+// 排行榜功能
+class LeaderboardManager {
+    constructor() {
+        // 根据环境选择API URL
+        this.apiBaseUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000/api'
+            : 'https://watemelone-game-backend.onrender.com/api'; // 替换为你的 Render.com 后端URL
+    }
+
+    async submitScore(nickname, score, level) {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/scores`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ nickname, score, level })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('提交分数失败:', error);
+            return null;
+        }
+    }
+
+    async getLeaderboard() {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/leaderboard`);
+            return await response.json();
+        } catch (error) {
+            console.error('获取排行榜失败:', error);
+            return null;
+        }
+    }
+}
+
 class Game {
     constructor() {
         // 不在构造函数中初始化
@@ -1240,9 +1276,8 @@ class Game {
 
     gameOver() {
         this.state = GAME_STATE.GAME_OVER;
-        document.getElementById('finalScore').textContent = this.score;
-        document.getElementById('finalLevel').textContent = this.level;
-        this.showOverlay(GAME_STATE.GAME_OVER);
+        // 显示排行榜
+        showGameOver(this.score, this.level);
     }
 
     checkLevelComplete() {
@@ -1288,10 +1323,9 @@ class Game {
     }
 
     restartGame() {
-        this.level = 1;
         this.score = 0;
-        document.getElementById('level').textContent = this.level;
-        document.getElementById('score').textContent = this.score;
+        this.level = 1;
+        this.resetLevel();
         this.startGame();
     }
 
@@ -1609,4 +1643,72 @@ function initializeGame() {
     console.log('找到canvas元素，创建游戏实例...');
     const game = new Game();
     game.init();
+}
+
+// 在游戏结束时显示排行榜
+function showGameOver(score, level) {
+    const leaderboard = new LeaderboardManager();
+    
+    // 创建游戏结束界面
+    const gameOverDiv = document.createElement('div');
+    gameOverDiv.style.position = 'fixed';
+    gameOverDiv.style.top = '50%';
+    gameOverDiv.style.left = '50%';
+    gameOverDiv.style.transform = 'translate(-50%, -50%)';
+    gameOverDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    gameOverDiv.style.padding = '20px';
+    gameOverDiv.style.borderRadius = '10px';
+    gameOverDiv.style.color = 'white';
+    gameOverDiv.style.textAlign = 'center';
+    
+    // 添加分数显示
+    gameOverDiv.innerHTML = `
+        <h2>游戏结束</h2>
+        <p>得分: ${score}</p>
+        <p>等级: ${level}</p>
+        <input type="text" id="nickname" placeholder="请输入昵称" style="margin: 10px; padding: 5px;">
+        <button id="submitScore" style="margin: 10px; padding: 5px 10px;">提交分数</button>
+        <div id="leaderboard" style="margin-top: 20px;">
+            <h3>排行榜</h3>
+            <div id="leaderboardList"></div>
+        </div>
+        <button id="restartGame" style="margin: 10px; padding: 5px 10px;">重新开始</button>
+    `;
+    
+    document.body.appendChild(gameOverDiv);
+    
+    // 提交分数
+    document.getElementById('submitScore').addEventListener('click', async () => {
+        const nickname = document.getElementById('nickname').value;
+        if (!nickname) {
+            alert('请输入昵称');
+            return;
+        }
+        
+        await leaderboard.submitScore(nickname, score, level);
+        updateLeaderboard();
+    });
+    
+    // 更新排行榜显示
+    async function updateLeaderboard() {
+        const leaderboardData = await leaderboard.getLeaderboard();
+        if (!leaderboardData) return;
+        
+        const leaderboardList = document.getElementById('leaderboardList');
+        leaderboardList.innerHTML = leaderboardData.data.map((item, index) => `
+            <div style="margin: 5px; padding: 5px; background: rgba(255,255,255,0.1);">
+                ${index + 1}. ${item.nickname} - ${item.score}分 (Level ${item.level})
+            </div>
+        `).join('');
+    }
+    
+    // 重新开始游戏
+    document.getElementById('restartGame').addEventListener('click', () => {
+        document.body.removeChild(gameOverDiv);
+        // 调用游戏的重新开始函数
+        restartGame();
+    });
+    
+    // 初始显示排行榜
+    updateLeaderboard();
 } 
