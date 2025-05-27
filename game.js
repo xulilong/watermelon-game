@@ -648,17 +648,14 @@ class Game {
     }
 
     updateFruits(deltaTime) {
-        // 检测是否为移动设备
-        const isMobile = window.matchMedia("(max-width: 768px)").matches;
-        
-        // 基础速度随关卡提升，但起始值更低，移动端额外降低30%
-        const baseSpeed = (0.8 + this.level * 0.2) * (deltaTime / 16) * (isMobile ? 0.7 : 1); 
-        // 重力效果更小，移动端额外降低30%
-        const gravity = (0.02 + this.level * 0.005) * (deltaTime / 16) * (isMobile ? 0.7 : 1);
+        // 基础速度随关卡提升，但起始值更低
+        const baseSpeed = (0.8 + this.level * 0.2) * (deltaTime / 16);
+        // 重力效果更小
+        const gravity = (0.02 + this.level * 0.005) * (deltaTime / 16);
         
         this.fruits = this.fruits.filter(fruit => {
-            // 更新速度，根据关卡调整最大下落速度，移动端额外降低30%
-            const maxSpeed = (3 + this.level * 0.3) * (isMobile ? 0.7 : 1);
+            // 更新速度，根据关卡调整最大下落速度
+            const maxSpeed = (3 + this.level * 0.3);
             fruit.speedY = Math.min(fruit.speedY + gravity, maxSpeed);
             
             // 更新位置
@@ -1370,14 +1367,10 @@ class Game {
         // 根据关卡生成障碍物
         this.obstacles = [];
         
-        // 检测是否为移动设备
-        const isMobile = window.matchMedia("(max-width: 768px)").matches;
-        
         // 第一关没有障碍物，纯粹练习基本操作
         if (this.level === 1) {
-            // 第一关特殊设置，移动端生成间隔更长
-            CONFIG.FRUIT_SPAWN_INTERVAL = isMobile ? 4000 : 3000;  // 移动端4秒一个水果
-            CONFIG.BOMB_SPAWN_INTERVAL = isMobile ? 8000 : 6000;   // 移动端8秒一个炸弹
+            CONFIG.FRUIT_SPAWN_INTERVAL = 3000;  // 第一关3秒一个水果
+            CONFIG.BOMB_SPAWN_INTERVAL = 6000;   // 第一关6秒一个炸弹
             return;
         }
         
@@ -1398,10 +1391,9 @@ class Game {
                 this.obstacles.push(obstacle);
             }
             
-            // 逐步加快生成速度，移动端更慢
-            const speedMultiplier = isMobile ? 0.7 : 1;
-            CONFIG.FRUIT_SPAWN_INTERVAL = Math.max(3000 - (this.level - 1) * 200, 1500) / speedMultiplier;
-            CONFIG.BOMB_SPAWN_INTERVAL = Math.max(6000 - (this.level - 1) * 300, 3000) / speedMultiplier;
+            // 逐步加快生成速度
+            CONFIG.FRUIT_SPAWN_INTERVAL = Math.max(3000 - (this.level - 1) * 200, 1500);
+            CONFIG.BOMB_SPAWN_INTERVAL = Math.max(6000 - (this.level - 1) * 300, 3000);
             return;
         }
         
@@ -1411,25 +1403,23 @@ class Game {
         
         for (let i = 0; i < obstacleCount; i++) {
             const type = Math.random() < movingObstacleRatio ? 'moving' : 'static';
-            const speedMultiplier = isMobile ? 0.7 : 1; // 移动端障碍物速度降低30%
             const obstacle = {
                 x: Math.random() * (this.canvas.width - CONFIG.OBSTACLE_WIDTH),
                 y: this.canvas.height * (0.3 + Math.random() * 0.4),
                 width: CONFIG.OBSTACLE_WIDTH,
                 height: CONFIG.OBSTACLE_HEIGHT,
                 type: type,
-                speed: type === 'moving' ? (Math.random() - 0.5) * (2 + (this.level - 5) * 0.3) * speedMultiplier : 0,
+                speed: type === 'moving' ? (Math.random() - 0.5) * (2 + (this.level - 5) * 0.3) : 0,
                 originalX: 0,
-                range: type === 'moving' ? (150 + (this.level - 5) * 15) * speedMultiplier : 0
+                range: type === 'moving' ? (150 + (this.level - 5) * 15) : 0
             };
             obstacle.originalX = obstacle.x;
             this.obstacles.push(obstacle);
         }
         
-        // 调整水果生成间隔，移动端更慢
-        const speedMultiplier = isMobile ? 0.7 : 1;
-        CONFIG.FRUIT_SPAWN_INTERVAL = Math.max(1500 - (this.level - 5) * 30, 800) / speedMultiplier;
-        CONFIG.BOMB_SPAWN_INTERVAL = Math.max(3000 - (this.level - 5) * 50, 2000) / speedMultiplier;
+        // 调整水果生成间隔
+        CONFIG.FRUIT_SPAWN_INTERVAL = Math.max(1500 - (this.level - 5) * 30, 800);
+        CONFIG.BOMB_SPAWN_INTERVAL = Math.max(3000 - (this.level - 5) * 50, 2000);
     }
 
     showNotification(text, duration, type = 'normal') {
