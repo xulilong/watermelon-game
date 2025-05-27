@@ -10,9 +10,9 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        fromDatabase:
-          name: watermelon_game
-          property: connectionString
+        value: postgresql://watermelon_game:0vEug90Jwc6kRIJiWkRyxfpBUdlmaKAj@dpg-d0qlopmmcj7s73e5c8i0-a.oregon-postgres.render.com/watermelon_game
+      - key: PORT
+        value: "3000"
 
 databases:
   - name: watermelon_game
