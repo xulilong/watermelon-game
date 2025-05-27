@@ -87,7 +87,22 @@ html, body {
         width: 40px;
         height: 40px;
         font-size: 16px;
-        top: 80px;
+        top: 20px;
+        right: 20px;
+    }
+
+    .instruction-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+        top: 20px;
+        right: 70px;
+    }
+
+    .instruction-popup {
+        max-width: 90%;
+        font-size: 14px;
+        top: 70px;
         right: 20px;
     }
 
@@ -99,17 +114,6 @@ html, body {
     .overlay-content {
         padding: 15px;
         max-width: 90%;
-    }
-
-    .instruction-popup {
-        max-width: 90%;
-        font-size: 14px;
-        top: 130px;
-    }
-
-    .instruction-btn {
-        top: 20px;
-        right: 20px;
     }
 }
 

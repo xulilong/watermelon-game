@@ -272,9 +272,9 @@ class Game {
                     this.mouth.x = gameWidth / 2;
                     this.mouth.y = gameHeight * 0.75;
                 } else {
-                    // 竖屏：放在底部中间偏上一些
+                    // 竖屏：放在下方中间偏上
                     this.mouth.x = gameWidth / 2;
-                    this.mouth.y = gameHeight * 0.65; // 改为65%的位置，更容易操作
+                    this.mouth.y = gameHeight * 0.75; // 改为75%的位置，更容易操作
                 }
             } else {
                 // PC端：保持在底部中间
