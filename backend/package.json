@@ -1,0 +1,25 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend server for watermelon game",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.x",
+    "cors": "^2.8.5",
+    "dotenv": "^16.x",
+    "express": "^4.x"
+  },
+  "devDependencies": {
+    "nodemon": "^3.x",
+    "prisma": "^5.x"
+  }
+}
