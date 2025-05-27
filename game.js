@@ -1345,7 +1345,7 @@ class Game {
         const tips = [];
         
         // 基础提示
-        tips.push('使用方向键或虚拟摇杆控制移动');
+        tips.push('触摸屏幕任意位置控制移动');
         tips.push('吃到西瓜会变大，柠檬会变小');
         tips.push('连续吃到水果可以触发连击加分');
         

@@ -242,42 +242,6 @@ body {
     100% { transform: scale(1); }
 }
 
-/* 横屏提示 */
-@media (orientation: portrait) {
-    .game-container::before {
-        display: none;
-    }
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-    .game-status {
-        font-size: 14px;
-        padding: 5px;
-    }
-
-    .control-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
-
-    .game-btn {
-        font-size: 16px;
-        padding: 8px 16px;
-    }
-
-    .overlay-content {
-        padding: 15px;
-        max-width: 90%;
-    }
-
-    .instruction-popup {
-        max-width: 90%;
-        font-size: 14px;
-    }
-}
-
 /* 隐藏样式 */
 .hidden {
     display: none !important;
@@ -418,18 +382,7 @@ html, body {
     }
 }
 
-/* 横屏提示 */
-.landscape-notice {
-    display: none !important;
-}
-
-@media (orientation: portrait) {
-    .game-container::before {
-        display: none;
-    }
-}
-
 /* 移除虚拟摇杆样式 */
 #joystick-area, #joystick-base, #joystick-stick {
     display: none;
-} 
+}

@@ -8,7 +8,7 @@ class AssetLoader {
         this.errors = [];
 
         // 获取基础路径
-        this.basePath = window.location.pathname.includes('/watermelon-game') ? '/watermelon-game/' : '/';
+        this.basePath = './';
 
         // 资源路径配置
         this.assets = {
@@ -24,9 +24,11 @@ class AssetLoader {
                 bomb: this.basePath + 'assets/images/fruits/bomb.png'
             },
             backgrounds: {
-                summer: this.basePath + 'assets/images/backgrounds/summer.jpg',
+                picnic: this.basePath + 'assets/images/backgrounds/picnic.jpg',
+                garden: this.basePath + 'assets/images/backgrounds/garden.jpg',
                 beach: this.basePath + 'assets/images/backgrounds/beach.jpg',
-                pool: this.basePath + 'assets/images/backgrounds/pool.jpg'
+                poolside: this.basePath + 'assets/images/backgrounds/poolside.jpg',
+                sunset: this.basePath + 'assets/images/backgrounds/sunset.jpg'
             },
             mouth: {
                 base: this.basePath + 'assets/images/mouth/base.png',
