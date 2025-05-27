@@ -192,43 +192,60 @@ class Game {
         // 获取设备像素比
         const dpr = window.devicePixelRatio || 1;
         
-        // 设置canvas的实际尺寸
+        // 获取容器尺寸
         const container = document.querySelector('.game-container');
         if (!container) {
             console.error('找不到game-container元素！');
             return;
         }
         
-        // 设置canvas的显示尺寸
-        const width = container.clientWidth;
-        const height = container.clientHeight;
+        // 获取容器的实际尺寸
+        const containerWidth = container.clientWidth;
+        const containerHeight = container.clientHeight;
+        
+        // 计算游戏画布的理想尺寸（保持16:9的宽高比）
+        const gameAspectRatio = 16 / 9;
+        let gameWidth, gameHeight;
+        
+        const containerAspectRatio = containerWidth / containerHeight;
+        
+        if (containerAspectRatio > gameAspectRatio) {
+            // 容器更宽，以高度为基准
+            gameHeight = containerHeight;
+            gameWidth = containerHeight * gameAspectRatio;
+        } else {
+            // 容器更高，以宽度为基准
+            gameWidth = containerWidth;
+            gameHeight = containerWidth / gameAspectRatio;
+        }
         
         // 设置canvas的实际尺寸（考虑设备像素比）
-        this.canvas.width = width * dpr;
-        this.canvas.height = height * dpr;
+        this.canvas.width = gameWidth * dpr;
+        this.canvas.height = gameHeight * dpr;
         
         // 设置canvas的CSS尺寸
-        this.canvas.style.width = `${width}px`;
-        this.canvas.style.height = `${height}px`;
+        this.canvas.style.width = `${gameWidth}px`;
+        this.canvas.style.height = `${gameHeight}px`;
+        
+        // 居中canvas
+        this.canvas.style.position = 'absolute';
+        this.canvas.style.left = `${(containerWidth - gameWidth) / 2}px`;
+        this.canvas.style.top = `${(containerHeight - gameHeight) / 2}px`;
         
         // 调整绘图上下文的缩放
         this.ctx.scale(dpr, dpr);
         
-        console.log(`Canvas尺寸设置完成: ${width} x ${height}, DPR: ${dpr}`);
+        // 保存游戏区域的实际尺寸
+        this.gameWidth = gameWidth;
+        this.gameHeight = gameHeight;
         
-        // 添加窗口调整大小的事件监听
-        window.addEventListener('resize', () => {
-            const newWidth = container.clientWidth;
-            const newHeight = container.clientHeight;
-            
-            this.canvas.width = newWidth * dpr;
-            this.canvas.height = newHeight * dpr;
-            this.canvas.style.width = `${newWidth}px`;
-            this.canvas.style.height = `${newHeight}px`;
-            this.ctx.scale(dpr, dpr);
-            
-            console.log(`Canvas尺寸已调整: ${newWidth} x ${newHeight}`);
-        });
+        // 重新定位嘴巴
+        if (this.mouth) {
+            this.mouth.x = Math.min(Math.max(this.mouth.x, this.mouth.size), gameWidth - this.mouth.size);
+            this.mouth.y = Math.min(Math.max(this.mouth.y, this.mouth.size), gameHeight - this.mouth.size);
+        }
+        
+        console.log(`Canvas尺寸设置完成: ${gameWidth} x ${gameHeight}, DPR: ${dpr}`);
     }
 
     setupEventListeners() {
@@ -249,12 +266,16 @@ class Game {
             this.touchStartY = touch.clientY;
             this.isTouching = true;
             
-            // 直接移动到触摸位置
+            // 计算触摸点相对于canvas的位置
             const rect = this.canvas.getBoundingClientRect();
-            const x = (touch.clientX - rect.left) * (this.canvas.width / rect.width);
-            const y = (touch.clientY - rect.top) * (this.canvas.height / rect.height);
-            this.mouth.x = x;
-            this.mouth.y = y;
+            const scaleX = this.gameWidth / rect.width;
+            const scaleY = this.gameHeight / rect.height;
+            const x = (touch.clientX - rect.left) * scaleX;
+            const y = (touch.clientY - rect.top) * scaleY;
+            
+            // 移动到触摸位置
+            this.mouth.x = Math.min(Math.max(x, this.mouth.size), this.gameWidth - this.mouth.size);
+            this.mouth.y = Math.min(Math.max(y, this.mouth.size), this.gameHeight - this.mouth.size);
         });
 
         this.canvas.addEventListener('touchmove', (e) => {
@@ -262,12 +283,14 @@ class Game {
             if (this.isTouching) {
                 const touch = e.touches[0];
                 const rect = this.canvas.getBoundingClientRect();
-                const x = (touch.clientX - rect.left) * (this.canvas.width / rect.width);
-                const y = (touch.clientY - rect.top) * (this.canvas.height / rect.height);
+                const scaleX = this.gameWidth / rect.width;
+                const scaleY = this.gameHeight / rect.height;
+                const x = (touch.clientX - rect.left) * scaleX;
+                const y = (touch.clientY - rect.top) * scaleY;
                 
                 // 限制移动范围
-                this.mouth.x = Math.max(this.mouth.size, Math.min(this.canvas.width - this.mouth.size, x));
-                this.mouth.y = Math.max(this.mouth.size, Math.min(this.canvas.height - this.mouth.size, y));
+                this.mouth.x = Math.min(Math.max(x, this.mouth.size), this.gameWidth - this.mouth.size);
+                this.mouth.y = Math.min(Math.max(y, this.mouth.size), this.gameHeight - this.mouth.size);
                 
                 // 计算移动角度
                 const dx = touch.clientX - this.touchStartX;
@@ -428,9 +451,9 @@ class Game {
         // 如果不是触摸控制，则使用键盘控制
         if (!this.isTouching) {
             if (this.keys.left) this.mouth.x = Math.max(this.mouth.size, this.mouth.x - CONFIG.MOUTH_SPEED);
-            if (this.keys.right) this.mouth.x = Math.min(this.canvas.width - this.mouth.size, this.mouth.x + CONFIG.MOUTH_SPEED);
+            if (this.keys.right) this.mouth.x = Math.min(this.gameWidth - this.mouth.size, this.mouth.x + CONFIG.MOUTH_SPEED);
             if (this.keys.up) this.mouth.y = Math.max(this.mouth.size, this.mouth.y - CONFIG.MOUTH_SPEED);
-            if (this.keys.down) this.mouth.y = Math.min(this.canvas.height - this.mouth.size, this.mouth.y + CONFIG.MOUTH_SPEED);
+            if (this.keys.down) this.mouth.y = Math.min(this.gameHeight - this.mouth.size, this.mouth.y + CONFIG.MOUTH_SPEED);
 
             // 更新键盘控制的角度
             this.mouth.angle = Math.atan2(
@@ -445,6 +468,10 @@ class Game {
             this.mouth.x = oldX;
             this.mouth.y = oldY;
         }
+        
+        // 限制嘴巴在游戏区域内
+        this.mouth.x = Math.min(Math.max(this.mouth.x, this.mouth.size), this.gameWidth - this.mouth.size);
+        this.mouth.y = Math.min(Math.max(this.mouth.y, this.mouth.size), this.gameHeight - this.mouth.size);
         
         // 张嘴动画
         this.mouth.openness = 0.5 + Math.sin(Date.now() / 200) * 0.2;

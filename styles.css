@@ -7,31 +7,75 @@
     -webkit-touch-callout: none;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #1a1a1a;
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
     position: fixed;
-    width: 100%;
-    height: 100%;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    background-color: #1a1a1a;
 }
 
-/* 游戏容器 */
+/* 游戏容器样式 */
 .game-container {
+    width: 100%;
+    height: 100%;
     position: relative;
-    width: 100vw;
-    height: 100vh;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
 }
 
-/* 游戏画布 */
+/* Canvas样式 */
 #gameCanvas {
+    display: block;
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     background-color: #000;
+    touch-action: none;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    .game-status {
+        font-size: 14px;
+        padding: 5px;
+    }
+
+    .control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .game-btn {
+        font-size: 16px;
+        padding: 8px 16px;
+    }
+
+    .overlay-content {
+        padding: 15px;
+        max-width: 90%;
+    }
+
+    .instruction-popup {
+        max-width: 90%;
+        font-size: 14px;
+    }
+}
+
+/* 游戏状态栏 */
+.game-status {
+    display: none !important;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* 加载界面 */
@@ -41,6 +85,8 @@ body {
     border-radius: 20px;
     text-align: center;
     color: white;
+    position: absolute;
+    z-index: 1000;
 }
 
 .progress-bar {
@@ -59,16 +105,75 @@ body {
     transition: width 0.3s ease;
 }
 
-/* 游戏状态栏 */
-.game-status {
-    display: none !important;
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
+/* 游戏说明按钮 */
+.instruction-btn {
+    right: 90px;
 }
 
-.status-item span {
+.instruction-icon {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* 游戏说明弹出层 */
+.instruction-popup {
+    position: absolute;
+    top: 90px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    border-radius: 15px;
+    color: white;
+    max-width: 250px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    z-index: 100;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.instruction-popup h3 {
+    margin-bottom: 15px;
     color: #4CAF50;
+    font-size: 18px;
+    text-align: center;
+}
+
+.instruction-content {
+    line-height: 1.5;
+}
+
+.fruit-scores {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.fruit-scores p {
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .instruction-popup {
+        top: auto;
+        bottom: 90px;
+        right: 20px;
+        font-size: 12px;
+        max-width: 200px;
+    }
+
+    .instruction-btn {
+        right: 80px;
+    }
+}
+
+/* 删除旧的游戏说明样式 */
+.game-instructions {
+    display: none;
 }
 
 /* 虚拟摇杆 */
@@ -250,136 +355,6 @@ body {
     pointer-events: none;
     position: absolute;
     z-index: -1;
-}
-
-/* 游戏说明按钮 */
-.instruction-btn {
-    right: 90px;
-}
-
-.instruction-icon {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-/* 游戏说明弹出层 */
-.instruction-popup {
-    position: absolute;
-    top: 90px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.9);
-    padding: 20px;
-    border-radius: 15px;
-    color: white;
-    max-width: 250px;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    font-size: 14px;
-    transition: all 0.3s ease;
-    z-index: 100;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.instruction-popup h3 {
-    margin-bottom: 15px;
-    color: #4CAF50;
-    font-size: 18px;
-    text-align: center;
-}
-
-.instruction-content {
-    line-height: 1.5;
-}
-
-.fruit-scores {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.fruit-scores p {
-    margin: 8px 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-@media (max-width: 768px) {
-    .instruction-popup {
-        top: auto;
-        bottom: 90px;
-        right: 20px;
-        font-size: 12px;
-        max-width: 200px;
-    }
-
-    .instruction-btn {
-        right: 80px;
-    }
-}
-
-/* 删除旧的游戏说明样式 */
-.game-instructions {
-    display: none;
-}
-
-/* 确保页面占满整个视口 */
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    position: fixed;
-    touch-action: none;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
-
-/* 游戏容器样式 */
-.game-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    background-color: #000;
-}
-
-/* Canvas样式 */
-#gameCanvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    touch-action: none;
-}
-
-/* 移动端优化 */
-@media (max-width: 768px) {
-    .game-status {
-        font-size: 14px;
-        padding: 5px;
-    }
-
-    .control-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
-
-    .game-btn {
-        font-size: 16px;
-        padding: 8px 16px;
-    }
-
-    .overlay-content {
-        padding: 15px;
-        max-width: 90%;
-    }
-
-    .instruction-popup {
-        max-width: 90%;
-        font-size: 14px;
-    }
 }
 
 /* 移除虚拟摇杆样式 */
