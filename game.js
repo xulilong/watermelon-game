@@ -6,8 +6,8 @@ const CONFIG = {
     MOUTH_MAX_SIZE: 80,
     MOUTH_SPEED: 5,
     FRUIT_SIZE: 30,
-    FRUIT_SPAWN_INTERVAL: 2000,
-    BOMB_SPAWN_INTERVAL: 5000,
+    FRUIT_SPAWN_INTERVAL: 3000,  // 第一关更慢的生成间隔
+    BOMB_SPAWN_INTERVAL: 6000,   // 第一关更慢的炸弹生成
     LEVEL_TIME: 45,
     SCORE_PER_FRUIT: 5,
     WATERMELON_GROWTH: 8,
@@ -648,19 +648,22 @@ class Game {
     }
 
     updateFruits(deltaTime) {
-        const baseSpeed = (2 + this.level * 0.3) * (deltaTime / 16); // 基础速度，根据帧率调整
-        const gravity = 0.05 * (deltaTime / 16); // 减小重力效果，并根据帧率调整
+        // 基础速度随关卡提升，但起始值更低
+        const baseSpeed = (0.8 + this.level * 0.2) * (deltaTime / 16); 
+        // 重力效果更小，确保第一关更容易控制
+        const gravity = (0.02 + this.level * 0.005) * (deltaTime / 16);
         
         this.fruits = this.fruits.filter(fruit => {
-            // 更新速度，限制最大下落速度
-            fruit.speedY = Math.min(fruit.speedY + gravity, 5);
+            // 更新速度，根据关卡调整最大下落速度
+            const maxSpeed = 3 + this.level * 0.3;
+            fruit.speedY = Math.min(fruit.speedY + gravity, maxSpeed);
             
             // 更新位置
             fruit.y += (fruit.speedY + baseSpeed);
             fruit.x += fruit.speedX * (deltaTime / 16);
             
-            // 更新旋转，使旋转速度更平滑
-            fruit.rotation += 0.01 * (deltaTime / 16);
+            // 更新旋转，使旋转速度更平滑，并随关卡增加
+            fruit.rotation += (0.005 + this.level * 0.001) * (deltaTime / 16);
             
             // 边界检查
             if (fruit.x < CONFIG.FRUIT_SIZE) {
@@ -671,7 +674,6 @@ class Game {
                 fruit.speedX *= -0.3;
             }
             
-            // 只有当水果完全离开屏幕底部时才移除
             return fruit.y < this.gameHeight + CONFIG.FRUIT_SIZE * 2;
         });
     }
@@ -1245,12 +1247,15 @@ class Game {
 
     checkLevelComplete() {
         const targetScore = this.getTargetScore();
-        if (this.score >= targetScore) {
+        const timeBonus = Math.ceil(this.timeLeft * 10); // 先计算时间奖励
+        const finalScore = this.score + timeBonus; // 加上时间奖励后的最终分数
+        
+        if (finalScore >= targetScore) {
             this.state = GAME_STATE.LEVEL_COMPLETE;
             document.getElementById('levelScore').textContent = this.score;
             document.getElementById('levelTime').textContent = Math.ceil(CONFIG.LEVEL_TIME - this.timeLeft);
-            document.getElementById('timeBonus').textContent = Math.ceil(this.timeLeft * 10);
-            this.score += Math.ceil(this.timeLeft * 10); // 时间奖励
+            document.getElementById('timeBonus').textContent = timeBonus;
+            this.score = finalScore; // 更新总分
             this.showOverlay(GAME_STATE.LEVEL_COMPLETE);
         } else {
             this.gameOver();
@@ -1364,12 +1369,15 @@ class Game {
         
         // 第一关没有障碍物，纯粹练习基本操作
         if (this.level === 1) {
+            // 第一关特殊设置
+            CONFIG.FRUIT_SPAWN_INTERVAL = 3000;  // 3秒一个水果
+            CONFIG.BOMB_SPAWN_INTERVAL = 6000;   // 6秒一个炸弹
             return;
         }
         
         // 第2-4关：静态障碍物，数量逐渐增加
         if (this.level <= 4) {
-            const obstacleCount = this.level - 1;  // 2关1个，3关2个，4关3个
+            const obstacleCount = Math.floor((this.level - 1) / 2);  // 2关1个，3关1个，4关2个
             for (let i = 0; i < obstacleCount; i++) {
                 const obstacle = {
                     x: Math.random() * (this.canvas.width - CONFIG.OBSTACLE_WIDTH),
@@ -1383,12 +1391,16 @@ class Game {
                 };
                 this.obstacles.push(obstacle);
             }
+            
+            // 逐步加快生成速度
+            CONFIG.FRUIT_SPAWN_INTERVAL = Math.max(3000 - (this.level - 1) * 200, 1500);
+            CONFIG.BOMB_SPAWN_INTERVAL = Math.max(6000 - (this.level - 1) * 300, 3000);
             return;
         }
         
         // 第5关开始引入移动障碍物
-        const obstacleCount = Math.min(3 + Math.floor((this.level - 4) / 2), 8);
-        const movingObstacleRatio = Math.min(0.3 + (this.level - 5) * 0.1, 0.7); // 随关卡提升移动障碍物比例
+        const obstacleCount = Math.min(2 + Math.floor((this.level - 4) / 2), 6); // 降低最大障碍物数量
+        const movingObstacleRatio = Math.min(0.2 + (this.level - 5) * 0.1, 0.6); // 降低移动障碍物比例
         
         for (let i = 0; i < obstacleCount; i++) {
             const type = Math.random() < movingObstacleRatio ? 'moving' : 'static';
@@ -1398,17 +1410,17 @@ class Game {
                 width: CONFIG.OBSTACLE_WIDTH,
                 height: CONFIG.OBSTACLE_HEIGHT,
                 type: type,
-                speed: type === 'moving' ? (Math.random() - 0.5) * (3 + (this.level - 5) * 0.5) : 0, // 速度随关卡提升
+                speed: type === 'moving' ? (Math.random() - 0.5) * (2 + (this.level - 5) * 0.3) : 0, // 降低初始速度
                 originalX: 0,
-                range: type === 'moving' ? 200 + (this.level - 5) * 20 : 0 // 移动范围随关卡提升
+                range: type === 'moving' ? 150 + (this.level - 5) * 15 : 0 // 降低初始移动范围
             };
             obstacle.originalX = obstacle.x;
             this.obstacles.push(obstacle);
         }
         
-        // 调整水果生成间隔
-        CONFIG.FRUIT_SPAWN_INTERVAL = Math.max(1000 - (this.level - 1) * 50, 500); // 最快500ms生成一个
-        CONFIG.BOMB_SPAWN_INTERVAL = Math.max(3000 - (this.level - 1) * 100, 1500); // 最快1.5s生成一个
+        // 调整水果生成间隔，使其更平缓
+        CONFIG.FRUIT_SPAWN_INTERVAL = Math.max(1500 - (this.level - 5) * 30, 800); // 最快800ms生成一个
+        CONFIG.BOMB_SPAWN_INTERVAL = Math.max(3000 - (this.level - 5) * 50, 2000); // 最快2s生成一个
     }
 
     showNotification(text, duration, type = 'normal') {
