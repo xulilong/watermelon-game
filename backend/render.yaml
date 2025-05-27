@@ -2,6 +2,7 @@ services:
   - type: web
     name: watemelone-game-backend
     env: node
+    rootDirectory: backend
     buildCommand: npm install && npx prisma generate
     startCommand: npm start
     envVars:
