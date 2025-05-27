@@ -4,7 +4,7 @@ services:
     env: node
     rootDirectory: backend
     buildCommand: npm install && npx prisma generate
-    startCommand: node ./src/app.js
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
