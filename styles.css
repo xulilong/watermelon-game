@@ -245,42 +245,36 @@ body {
 /* 横屏提示 */
 @media (orientation: portrait) {
     .game-container::before {
-        content: "请横屏使用";
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 20px;
-        border-radius: 10px;
-        z-index: 9999;
-        backdrop-filter: blur(5px);
+        display: none;
     }
 }
 
 /* 响应式调整 */
 @media (max-width: 768px) {
     .game-status {
-        font-size: 16px;
-        padding: 8px 15px;
+        font-size: 14px;
+        padding: 5px;
     }
 
-    #joystick-area {
-        bottom: 20px;
-        left: 20px;
-        width: 120px;
-        height: 120px;
-    }
-
-    #joystick-base {
-        width: 80px;
-        height: 80px;
-    }
-
-    #joystick-stick {
+    .control-btn {
         width: 40px;
         height: 40px;
+        font-size: 16px;
+    }
+
+    .game-btn {
+        font-size: 16px;
+        padding: 8px 16px;
+    }
+
+    .overlay-content {
+        padding: 15px;
+        max-width: 90%;
+    }
+
+    .instruction-popup {
+        max-width: 90%;
+        font-size: 14px;
     }
 }
 
@@ -395,7 +389,7 @@ html, body {
     touch-action: none;
 }
 
-/* 移动端适配 */
+/* 移动端优化 */
 @media (max-width: 768px) {
     .game-status {
         font-size: 14px;
@@ -426,22 +420,16 @@ html, body {
 
 /* 横屏提示 */
 .landscape-notice {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    color: white;
-    text-align: center;
-    padding-top: 40%;
-    z-index: 9999;
-    font-size: 18px;
+    display: none !important;
 }
 
 @media (orientation: portrait) {
-    .landscape-notice {
-        display: block;
+    .game-container::before {
+        display: none;
     }
+}
+
+/* 移除虚拟摇杆样式 */
+#joystick-area, #joystick-base, #joystick-stick {
+    display: none;
 } 

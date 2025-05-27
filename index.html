@@ -3,17 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>吃个大西瓜 - 横屏趣味版</title>
+    <title>吃个大西瓜 - 趣味版</title>
     <link rel="stylesheet" href="/watermelon-game/styles.css">
 </head>
 <body>
-    <!-- 横屏提示 -->
-    <div class="landscape-notice">
-        请将手机横屏以获得最佳游戏体验
-        <br>
-        ↻ 旋转屏幕
-    </div>
-
     <!-- 加载界面 -->
     <div id="loadingScreen" class="overlay">
         <div class="loading-content">
@@ -36,13 +29,6 @@
             <div class="status-item">时间: <span id="timer">60</span>s</div>
         </div>
 
-        <!-- 虚拟摇杆 -->
-        <div id="joystick-area">
-            <div id="joystick-base">
-                <div id="joystick-stick"></div>
-            </div>
-        </div>
-
         <!-- 暂停按钮 -->
         <button id="pauseBtn" class="control-btn">
             <span class="pause-icon">❚❚</span>
@@ -57,7 +43,7 @@
         <div id="instructionPopup" class="instruction-popup hidden">
             <div class="instruction-content">
                 <h3>游戏规则</h3>
-                <p>控制角色吃掉掉落的水果，注意避开炸弹！</p>
+                <p>触摸屏幕控制角色移动，吃掉掉落的水果，注意避开炸弹！</p>
                 <div class="fruit-scores">
                     <p>🍉 西瓜: 8分</p>
                     <p>🥭 芒果: 7分</p>

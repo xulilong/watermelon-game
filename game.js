@@ -147,9 +147,13 @@ class Game {
         // 添加提示文本
         this.notifications = [];
         
+        // 触摸控制相关
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.isTouching = false;
+        
         // 初始化
         this.setupEventListeners();
-        this.setupJoystick();
         
         // 加载资源
         this.assetLoader = new AssetLoader();
@@ -237,6 +241,49 @@ class Game {
             this.handleKeyUp(e);
         });
 
+        // 触摸事件监听
+        this.canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            this.touchStartX = touch.clientX;
+            this.touchStartY = touch.clientY;
+            this.isTouching = true;
+            
+            // 直接移动到触摸位置
+            const rect = this.canvas.getBoundingClientRect();
+            const x = (touch.clientX - rect.left) * (this.canvas.width / rect.width);
+            const y = (touch.clientY - rect.top) * (this.canvas.height / rect.height);
+            this.mouth.x = x;
+            this.mouth.y = y;
+        });
+
+        this.canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (this.isTouching) {
+                const touch = e.touches[0];
+                const rect = this.canvas.getBoundingClientRect();
+                const x = (touch.clientX - rect.left) * (this.canvas.width / rect.width);
+                const y = (touch.clientY - rect.top) * (this.canvas.height / rect.height);
+                
+                // 限制移动范围
+                this.mouth.x = Math.max(this.mouth.size, Math.min(this.canvas.width - this.mouth.size, x));
+                this.mouth.y = Math.max(this.mouth.size, Math.min(this.canvas.height - this.mouth.size, y));
+                
+                // 计算移动角度
+                const dx = touch.clientX - this.touchStartX;
+                const dy = touch.clientY - this.touchStartY;
+                this.mouth.angle = Math.atan2(dy, dx);
+            }
+        });
+
+        this.canvas.addEventListener('touchend', () => {
+            this.isTouching = false;
+        });
+
+        this.canvas.addEventListener('touchcancel', () => {
+            this.isTouching = false;
+        });
+
         // 窗口大小改变事件
         window.addEventListener('resize', () => {
             this.setupCanvas();
@@ -276,74 +323,6 @@ class Game {
         document.getElementById('resumeBtn').addEventListener('click', () => this.resumeGame());
         document.getElementById('restartLevelBtn').addEventListener('click', () => this.restartLevel());
         document.getElementById('quitBtn').addEventListener('click', () => this.quitGame());
-    }
-
-    setupJoystick() {
-        const joystickArea = document.getElementById('joystick-area');
-        const stick = document.getElementById('joystick-stick');
-        let isDragging = false;
-        let startX, startY;
-
-        const updateJoystick = (clientX, clientY) => {
-            const rect = joystickArea.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            
-            let deltaX = clientX - centerX;
-            let deltaY = clientY - centerY;
-            
-            // 限制摇杆移动范围
-            const maxDistance = 50;
-            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            if (distance > maxDistance) {
-                deltaX = (deltaX / distance) * maxDistance;
-                deltaY = (deltaY / distance) * maxDistance;
-            }
-
-            stick.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-
-            // 更新移动方向
-            this.keys.left = deltaX < -10;
-            this.keys.right = deltaX > 10;
-            this.keys.up = deltaY < -10;
-            this.keys.down = deltaY > 10;
-        };
-
-        // 触摸事件
-        joystickArea.addEventListener('touchstart', (e) => {
-            isDragging = true;
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-        });
-
-        joystickArea.addEventListener('touchmove', (e) => {
-            if (isDragging) {
-                e.preventDefault();
-                updateJoystick(e.touches[0].clientX, e.touches[0].clientY);
-            }
-        });
-
-        // 鼠标事件
-        joystickArea.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            startX = e.clientX;
-            startY = e.clientY;
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                updateJoystick(e.clientX, e.clientY);
-            }
-        });
-
-        const resetJoystick = () => {
-            isDragging = false;
-            stick.style.transform = 'translate(0px, 0px)';
-            this.keys.left = this.keys.right = this.keys.up = this.keys.down = false;
-        };
-
-        window.addEventListener('mouseup', resetJoystick);
-        window.addEventListener('touchend', resetJoystick);
     }
 
     initUI() {
@@ -446,11 +425,19 @@ class Game {
         const oldX = this.mouth.x;
         const oldY = this.mouth.y;
         
-        // 根据按键更新嘴巴位置
-        if (this.keys.left) this.mouth.x = Math.max(this.mouth.size, this.mouth.x - CONFIG.MOUTH_SPEED);
-        if (this.keys.right) this.mouth.x = Math.min(this.canvas.width - this.mouth.size, this.mouth.x + CONFIG.MOUTH_SPEED);
-        if (this.keys.up) this.mouth.y = Math.max(this.mouth.size, this.mouth.y - CONFIG.MOUTH_SPEED);
-        if (this.keys.down) this.mouth.y = Math.min(this.canvas.height - this.mouth.size, this.mouth.y + CONFIG.MOUTH_SPEED);
+        // 如果不是触摸控制，则使用键盘控制
+        if (!this.isTouching) {
+            if (this.keys.left) this.mouth.x = Math.max(this.mouth.size, this.mouth.x - CONFIG.MOUTH_SPEED);
+            if (this.keys.right) this.mouth.x = Math.min(this.canvas.width - this.mouth.size, this.mouth.x + CONFIG.MOUTH_SPEED);
+            if (this.keys.up) this.mouth.y = Math.max(this.mouth.size, this.mouth.y - CONFIG.MOUTH_SPEED);
+            if (this.keys.down) this.mouth.y = Math.min(this.canvas.height - this.mouth.size, this.mouth.y + CONFIG.MOUTH_SPEED);
+
+            // 更新键盘控制的角度
+            this.mouth.angle = Math.atan2(
+                this.keys.up ? -1 : this.keys.down ? 1 : 0,
+                this.keys.left ? -1 : this.keys.right ? 1 : 0
+            );
+        }
 
         // 检查与障碍物的碰撞
         if (this.checkObstacleCollision()) {
@@ -458,12 +445,6 @@ class Game {
             this.mouth.x = oldX;
             this.mouth.y = oldY;
         }
-
-        // 更新嘴巴动画
-        this.mouth.angle = Math.atan2(
-            this.keys.up ? -1 : this.keys.down ? 1 : 0,
-            this.keys.left ? -1 : this.keys.right ? 1 : 0
-        );
         
         // 张嘴动画
         this.mouth.openness = 0.5 + Math.sin(Date.now() / 200) * 0.2;
