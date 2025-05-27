@@ -7,29 +7,32 @@ class AssetLoader {
         this.onComplete = null;
         this.errors = [];
 
+        // 获取基础路径
+        this.basePath = window.location.pathname.includes('/watermelon-game') ? '/watermelon-game/' : '/';
+
         // 资源路径配置
         this.assets = {
             fruits: {
-                watermelon: 'assets/images/fruits/watermelon.png',
-                lemon: 'assets/images/fruits/lemon.png',
-                apple: 'assets/images/fruits/apple.png',
-                grape: 'assets/images/fruits/grape.png',
-                orange: 'assets/images/fruits/orange.png',
-                banana: 'assets/images/fruits/banana.png',
-                kiwi: 'assets/images/fruits/kiwi.png',
-                mango: 'assets/images/fruits/mango.png',
-                bomb: 'assets/images/fruits/bomb.png'
+                watermelon: this.basePath + 'assets/images/fruits/watermelon.png',
+                lemon: this.basePath + 'assets/images/fruits/lemon.png',
+                apple: this.basePath + 'assets/images/fruits/apple.png',
+                grape: this.basePath + 'assets/images/fruits/grape.png',
+                orange: this.basePath + 'assets/images/fruits/orange.png',
+                banana: this.basePath + 'assets/images/fruits/banana.png',
+                kiwi: this.basePath + 'assets/images/fruits/kiwi.png',
+                mango: this.basePath + 'assets/images/fruits/mango.png',
+                bomb: this.basePath + 'assets/images/fruits/bomb.png'
             },
             backgrounds: {
-                summer: 'assets/images/backgrounds/summer.jpg',
-                beach: 'assets/images/backgrounds/beach.jpg',
-                pool: 'assets/images/backgrounds/pool.jpg'
+                summer: this.basePath + 'assets/images/backgrounds/summer.jpg',
+                beach: this.basePath + 'assets/images/backgrounds/beach.jpg',
+                pool: this.basePath + 'assets/images/backgrounds/pool.jpg'
             },
             mouth: {
-                base: 'assets/images/mouth/base.png',
-                open: 'assets/images/mouth/open.png',
-                happy: 'assets/images/mouth/happy.png',
-                sad: 'assets/images/mouth/sad.png'
+                base: this.basePath + 'assets/images/mouth/base.png',
+                open: this.basePath + 'assets/images/mouth/open.png',
+                happy: this.basePath + 'assets/images/mouth/happy.png',
+                sad: this.basePath + 'assets/images/mouth/sad.png'
             }
         };
     }
