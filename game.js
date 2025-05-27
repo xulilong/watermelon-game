@@ -203,39 +203,44 @@ class Game {
         const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
         
-        // 检测是否为移动设备
+        // 检测是否为移动设备和屏幕方向
         const isMobile = window.matchMedia("(max-width: 768px)").matches;
+        const isLandscape = window.matchMedia("(orientation: landscape)").matches;
         
         let gameWidth, gameHeight;
         
         if (isMobile) {
-            // 移动端使用固定宽高比
-            const isLandscape = containerWidth > containerHeight;
             if (isLandscape) {
-                // 横屏：使用16:9
-                const gameAspectRatio = 16 / 9;
-                gameHeight = containerHeight;
-                gameWidth = gameHeight * gameAspectRatio;
+                // 移动端横屏：保持16:9的宽高比
+                const targetAspectRatio = 16 / 9;
+                const containerAspectRatio = containerWidth / containerHeight;
                 
-                // 如果计算出的宽度超过容器宽度，则反过来计算
-                if (gameWidth > containerWidth) {
+                if (containerAspectRatio > targetAspectRatio) {
+                    // 容器更宽，以高度为基准
+                    gameHeight = containerHeight;
+                    gameWidth = gameHeight * targetAspectRatio;
+                } else {
+                    // 容器更高，以宽度为基准
                     gameWidth = containerWidth;
-                    gameHeight = gameWidth / gameAspectRatio;
+                    gameHeight = gameWidth / targetAspectRatio;
                 }
             } else {
-                // 竖屏：使用9:16
-                const gameAspectRatio = 9 / 16;
-                gameWidth = containerWidth;
-                gameHeight = gameWidth / gameAspectRatio;
+                // 移动端竖屏：保持9:16的宽高比
+                const targetAspectRatio = 9 / 16;
+                const containerAspectRatio = containerWidth / containerHeight;
                 
-                // 如果计算出的高度超过容器高度，则反过来计算
-                if (gameHeight > containerHeight) {
+                if (containerAspectRatio > targetAspectRatio) {
+                    // 容器更宽，以高度为基准
                     gameHeight = containerHeight;
-                    gameWidth = gameHeight * gameAspectRatio;
+                    gameWidth = gameHeight * targetAspectRatio;
+                } else {
+                    // 容器更高，以宽度为基准
+                    gameWidth = containerWidth;
+                    gameHeight = gameWidth / targetAspectRatio;
                 }
             }
         } else {
-            // PC端使用全屏
+            // PC端：使用容器完整尺寸
             gameWidth = containerWidth;
             gameHeight = containerHeight;
         }
@@ -249,7 +254,6 @@ class Game {
         this.canvas.style.height = `${gameHeight}px`;
         
         // 居中canvas
-        this.canvas.style.position = 'absolute';
         this.canvas.style.left = `${(containerWidth - gameWidth) / 2}px`;
         this.canvas.style.top = `${(containerHeight - gameHeight) / 2}px`;
         
@@ -262,24 +266,55 @@ class Game {
         
         // 重新定位嘴巴
         if (this.mouth) {
-            const isLandscape = containerWidth > containerHeight;
             if (isMobile) {
                 if (isLandscape) {
-                    // 横屏：放在底部中间
+                    // 横屏：放在底部中间偏上
                     this.mouth.x = gameWidth / 2;
-                    this.mouth.y = gameHeight * 0.8;
+                    this.mouth.y = gameHeight * 0.75;
                 } else {
                     // 竖屏：放在底部中间偏上
                     this.mouth.x = gameWidth / 2;
-                    this.mouth.y = gameHeight * 0.7;
+                    this.mouth.y = gameHeight * 0.75;
                 }
+            } else {
+                // PC端：保持在底部中间
+                this.mouth.x = gameWidth / 2;
+                this.mouth.y = gameHeight * 0.85;
             }
+            
             // 确保嘴巴在游戏区域内
             this.mouth.x = Math.min(Math.max(this.mouth.x, this.mouth.size), gameWidth - this.mouth.size);
             this.mouth.y = Math.min(Math.max(this.mouth.y, this.mouth.size), gameHeight - this.mouth.size);
         }
         
-        console.log(`Canvas尺寸设置完成: ${gameWidth} x ${gameHeight}, DPR: ${dpr}, Mobile: ${isMobile}, Landscape: ${containerWidth > containerHeight}`);
+        // 调整游戏参数以适应不同屏幕尺寸
+        this.adjustGameParameters();
+        
+        console.log(`Canvas尺寸设置完成: ${gameWidth} x ${gameHeight}, DPR: ${dpr}, Mobile: ${isMobile}, Landscape: ${isLandscape}`);
+    }
+
+    adjustGameParameters() {
+        // 根据屏幕尺寸调整游戏参数
+        const screenRatio = Math.min(this.gameWidth, this.gameHeight) / 1000; // 使用1000作为基准尺寸
+        
+        // 调整嘴巴大小
+        CONFIG.MOUTH_INITIAL_SIZE = Math.round(40 * screenRatio);
+        CONFIG.MOUTH_MIN_SIZE = Math.round(20 * screenRatio);
+        CONFIG.MOUTH_MAX_SIZE = Math.round(80 * screenRatio);
+        CONFIG.MOUTH_SPEED = Math.round(5 * screenRatio);
+        
+        // 调整水果大小
+        CONFIG.FRUIT_SIZE = Math.round(30 * screenRatio);
+        
+        // 调整障碍物尺寸
+        CONFIG.OBSTACLE_WIDTH = Math.round(100 * screenRatio);
+        CONFIG.OBSTACLE_HEIGHT = Math.round(20 * screenRatio);
+        
+        // 调整特效参数
+        CONFIG.SCREEN_SHAKE_INTENSITY = Math.round(5 * screenRatio);
+        CONFIG.BACKGROUND_PARTICLE_SIZE = Math.round(3 * screenRatio);
+        
+        console.log('游戏参数已根据屏幕尺寸调整');
     }
 
     setupEventListeners() {
